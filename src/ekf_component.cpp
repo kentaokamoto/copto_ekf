@@ -25,9 +25,9 @@ EKFComponent::EKFComponent(const rclcpp::NodeOptions & options) : Node("copto_ek
   IMUsubscription_ = this->create_subscription<sensor_msgs::msg::Imu>(
     "/imu", 10, std::bind(&EKFComponent::IMUtopic_callback, this, std::placeholders::_1));
 
-    Posepublisher_ = this->create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>("/pose", 10);
+    Posepublisher_ = this->create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>("/pose", 1);
 
-    Twistpublisher_ = this->create_publisher<geometry_msgs::msg::TwistWithCovarianceStamped>("/twist", 10);
+    Twistpublisher_ = this->create_publisher<geometry_msgs::msg::TwistWithCovarianceStamped>("/twist", 1);
 }
 
 
@@ -47,10 +47,10 @@ void EKFComponent::IMUtopic_callback(const sensor_msgs::msg::Imu::SharedPtr msg)
 bool EKFComponent::init()
 {
   x << 0, 0, 0, 0, 0, 0, 1, 0, 0, 0;
-  P << 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 1;
+  P << 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 100;
   return initialized = true;
 }
 
@@ -128,8 +128,8 @@ void EKFComponent::jacobi()
         0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 
         0, 0, 0, 0, 0, 0, 0, 0, 0, 1;
 
-  M << 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0,
-    0, 0, 0, 0, 1;
+  M << 100, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 100, 0, 0,
+    0, 0, 0, 0, 100;
 
   // if you have GPS covariance, you can use here.
   /*
