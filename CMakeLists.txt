@@ -17,7 +17,6 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-find_package(ament_cmake_auto REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
 
@@ -31,9 +30,8 @@ add_library(ekf_component SHARED src/ekf_component.cpp)
 
 target_compile_definitions(
   ekf_component 
-  PRIVATE "COPTO_EKF__EKF_COMPONENT_BUILDING_DLL"
+  PRIVATE "COPTO_EKF_EKF_COMPONENT_BUILDING_DLL"
   )
-
 
 ament_target_dependencies(ekf_component 
   rclcpp 
@@ -46,15 +44,33 @@ rclcpp_components_register_nodes(
   ekf_component "copto_ekf::EKFComponent"
   )
 
-
 add_executable(copto_ekf_node src/copto_ekf_node.cpp)
 
-ament_target_dependencies(copto_ekf_node rclcpp rclcpp_components)
+ament_target_dependencies(copto_ekf_node 
+  rclcpp 
+  rclcpp_components
+  sensor_msgs 
+  geometry_msgs
+  )
 
 target_link_libraries(copto_ekf_node ekf_component Eigen3::Eigen)
 
 install(TARGETS copto_ekf_node
   DESTINATION lib/${PROJECT_NAME})
+
+install(TARGETS ekf_component
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+  )
+
+
+ament_export_libraries(ekf_component)
+
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+endif()
 
 ament_export_include_directories(include)
 ament_package()

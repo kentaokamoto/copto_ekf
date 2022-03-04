@@ -1,5 +1,6 @@
 #include <Eigen/Dense>
 #include <copto_ekf/ekf_component.hpp>
+#include <rclcpp_components/register_node_macro.hpp>
 
 namespace copto_ekf
 {
@@ -24,14 +25,11 @@ EKFComponent::EKFComponent(const rclcpp::NodeOptions & options) : Node("copto_ek
   IMUsubscription_ = this->create_subscription<sensor_msgs::msg::Imu>(
     "/imu", 10, std::bind(&EKFComponent::IMUtopic_callback, this, std::placeholders::_1));
 
-  Posepublisher_ =
-    this->create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>("/pose", 10);
+    Posepublisher_ = this->create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>("/pose", 10);
 
-    Quatpublisher_ =
-    this->create_publisher<geometry_msgs::msg::TwistWithCovarianceStamped>("/twist", 10);
+    Twistpublisher_ = this->create_publisher<geometry_msgs::msg::TwistWithCovarianceStamped>("/twist", 10);
     
-    Quatpublisher_ =
-    this->create_publisher<geometry_msgs::msg::QuaternionStamped>("/quat", 10);
+    Quatpublisher_ = this->create_publisher<geometry_msgs::msg::QuaternionStamped>("/quat", 10);
 }
 
 
@@ -156,10 +154,12 @@ void EKFComponent::update()
     }
 
     // 予測ステップ
+    X = A * X + x - A * x;
+    y = C * X;
+
     modelfunc();
     jacobi();
-    X = AX + x - A * x;
-    y = C*X;
+    
     // filtering step 1
     P = A * P * A.transpose() + B * M * B.transpose();
     S = C * P * C.transpose() + Q;
@@ -180,7 +180,7 @@ void EKFComponent::update()
         P(7, 0), P(7, 1), P(7, 2), P(7, 7), P(7, 8), P(7, 9), P(8, 0), P(8, 1), P(8, 2),
         P(8, 7), P(8, 8), P(8, 9), P(9, 0), P(9, 1), P(9, 2), P(9, 7), P(9, 8), P(9, 9)};
 
-    geometry_msgs::msg::TwistWithCovarianceStamped pose_msg;
+    geometry_msgs::msg::TwistWithCovarianceStamped twist_msg;
     twist_msg.header.frame_id = "/map";
     twist_msg.header.stamp = imutimestamp;
     twist_msg.twist.twist.linear.x = x(3);
@@ -206,3 +206,5 @@ void EKFComponent::update()
     Quatpublisher_->publish(quat_msg);
 }
 }  // namespace copto_ekf
+
+RCLCPP_COMPONENTS_REGISTER_NODE(copto_ekf::EKFComponent)

@@ -9,30 +9,30 @@ extern "C" {
 // demos/composition/include/composition/visibility_control.h at https://github.com/ros2/demos
 #if defined _WIN32 || defined __CYGWIN__
 #ifdef __GNUC__
-#define COPTO_EKF__EKF_COMPONENT_EXPORT __attribute__((dllexport))
-#define COPTO_EKF__EKF_COMPONENT_IMPORT __attribute__((dllimport))
+#define COPTO_EKF_EKF_COMPONENT_EXPORT __attribute__((dllexport))
+#define COPTO_EKF_EKF_COMPONENT_IMPORT __attribute__((dllimport))
 #else
-#define COPTO_EKF__EKF_COMPONENT_EXPORT __declspec(dllexport)
-#define COPTO_EKF__EKF_COMPONENT_IMPORT __declspec(dllimport)
+#define COPTO_EKF_EKF_COMPONENT_EXPORT __declspec(dllexport)
+#define COPTO_EKF_EKF_COMPONENT_IMPORT __declspec(dllimport)
 #endif
-#ifdef COPTO_EKF__EKF_COMPONENT_BUILDING_DLL
-#define COPTO_EKF__EKF_COMPONENT_PUBLIC COPTO_EKF__EKF_COMPONENT_EXPORT
+#ifdef COPTO_EKF_EKF_COMPONENT_BUILDING_DLL
+#define COPTO_EKF_EKF_COMPONENT_PUBLIC COPTO_EKF__EKF_COMPONENT_EXPORT
 #else
-#define JOY_TO_TWIST_JOY_TO_TWIST_COMPONENT_PUBLIC COPTO_EKF__EKF_COMPONENT_IMPORT
+#define COPTO_EKF_EKF_COMPONENT_PUBLIC COPTO_EKF__EKF_COMPONENT_IMPORT
 #endif
 #define COPTO_EKF__EKF_COMPONENT_PUBLIC_TYPE COPTO_EKF__EKF_COMPONENT_PUBLIC
-#define JOY_TO_TWIST_JOY_TO_TWIST_COMPONENT_LOCAL
+#define COPTO_EKF_EKF_COMPONENT_LOCAL
 #else
-#define COPTO_EKF__EKF_COMPONENT_EXPORT __attribute__((visibility("default")))
-#define COPTO_EKF__EKF_COMPONENT_IMPORT
+#define COPTO_EKF_EKF_COMPONENT_EXPORT __attribute__((visibility("default")))
+#define COPTO_EKF_EKF_COMPONENT_IMPORT
 #if __GNUC__ >= 4
-#define COPTO_EKF__EKF_COMPONENT_PUBLIC __attribute__((visibility("default")))
-#define COPTO_EKF__EKF_COMPONENT_LOCAL __attribute__((visibility("hidden")))
+#define COPTO_EKF_EKF_COMPONENT_PUBLIC __attribute__((visibility("default")))
+#define COPTO_EKF_EKF_COMPONENT_LOCAL __attribute__((visibility("hidden")))
 #else
-#define COPTO_EKF__EKF_COMPONENT_PUBLIC
-#define COPTO_EKF__EKF_COMPONENT_LOCAL
+#define COPTO_EKF_EKF_COMPONENT_PUBLIC
+#define COPTO_EKF_EKF_COMPONENT_LOCAL
 #endif
-#define COPTO_EKF__EKF_COMPONENT_PUBLIC_TYPE
+#define COPTO_EKF_EKF_COMPONENT_PUBLIC_TYPE
 #endif
 
 #if __cplusplus
@@ -54,7 +54,7 @@ namespace copto_ekf
 class EKFComponent : public rclcpp::Node
 {
 public:
-  COPTO_EKF__EKF_COMPONENT_PUBLIC
+  COPTO_EKF_EKF_COMPONENT_PUBLIC
   explicit EKFComponent(const rclcpp::NodeOptions & options);
 
   double dt = 0.0025;
@@ -84,8 +84,8 @@ private:
   void update();
   rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr IMUsubscription_;
   rclcpp::Publisher<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr Posepublisher_;
-  rclcpp::Publisher<geometry_msgs::msg::TwistWithCovarianceStamped>::SharedPtr quatpublisher_;
-  rclcpp::Publisher<geometry_msgs::msg::QuaternionStampedStamped>::SharedPtr quatpublisher_;
+  rclcpp::Publisher<geometry_msgs::msg::TwistWithCovarianceStamped>::SharedPtr Twistpublisher_;
+  rclcpp::Publisher<geometry_msgs::msg::QuaternionStamped>::SharedPtr Quatpublisher_;
 };
 }  // namespace copto_ekf
 
