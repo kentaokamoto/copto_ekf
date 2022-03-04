@@ -79,7 +79,7 @@ void EKFComponent::modelfunc()
                (2 * q2 * q3 - 2 * q0 * q1) * u(2)) *
                 dt;
   x(5) = vz + ((2 * q1 * q3 - 2 * q0 * q2) * u(0) + (2 * q2 * q3 + 2 * q0 * q1) * u(1) +
-               (q0 * q0 + q3 * q3 - q1 * q1 - q2 * q2) * u(2) - 9.81) *
+               (q0 * q0 + q3 * q3 - q1 * q1 - q2 * q2) * u(2) - 9.797) *
                 dt;
 
   x(6) = (-u(3) * q1 - u(4) * q2 - u(5) * q3) * dt + q0;
@@ -174,10 +174,10 @@ void EKFComponent::update()
     pose_msg.pose.pose.position.y = x(1);
     pose_msg.pose.pose.position.z = x(2);
 
-    pose_msg.pose.orientation.w = x(6);
-    pose_msg.pose.orientation.x = x(7);
-    pose_msg.pose.orientation.y = x(8);
-    pose_msg.pose.orientation.z = x(9);
+    pose_msg.pose.pose.orientation.w = x(6);
+    pose_msg.pose.pose.orientation.x = x(7);
+    pose_msg.pose.pose.orientation.y = x(8);
+    pose_msg.pose.pose.orientation.z = x(9);
 
     pose_msg.pose.covariance = {
         P(0, 0), P(0, 1), P(0, 2), P(0, 7), P(0, 8), P(0, 9), P(1, 0), P(1, 1), P(1, 2),

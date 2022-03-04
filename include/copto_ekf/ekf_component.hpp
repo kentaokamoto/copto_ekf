@@ -56,7 +56,7 @@ public:
   COPTO_EKF_EKF_COMPONENT_PUBLIC
   explicit EKFComponent(const rclcpp::NodeOptions & options);
 
-  double dt = 0.0025;
+  double dt = 0.001;
   bool initialized = false;
   Eigen::MatrixXd P;
   Eigen::VectorXd x;
