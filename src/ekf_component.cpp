@@ -28,8 +28,6 @@ EKFComponent::EKFComponent(const rclcpp::NodeOptions & options) : Node("copto_ek
     Posepublisher_ = this->create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>("/pose", 10);
 
     Twistpublisher_ = this->create_publisher<geometry_msgs::msg::TwistWithCovarianceStamped>("/twist", 10);
-    
-    Quatpublisher_ = this->create_publisher<geometry_msgs::msg::QuaternionStamped>("/quat", 10);
 }
 
 
@@ -42,6 +40,8 @@ void EKFComponent::IMUtopic_callback(const sensor_msgs::msg::Imu::SharedPtr msg)
   u(3) = msg->angular_velocity.x;
   u(4) = msg->angular_velocity.y;
   u(5) = msg->angular_velocity.z;
+    if(!initialized){init();}
+    update();
 }
 
 bool EKFComponent::init()
@@ -174,6 +174,11 @@ void EKFComponent::update()
     pose_msg.pose.pose.position.y = x(1);
     pose_msg.pose.pose.position.z = x(2);
 
+    pose_msg.pose.orientation.w = x(6);
+    pose_msg.pose.orientation.x = x(7);
+    pose_msg.pose.orientation.y = x(8);
+    pose_msg.pose.orientation.z = x(9);
+
     pose_msg.pose.covariance = {
         P(0, 0), P(0, 1), P(0, 2), P(0, 7), P(0, 8), P(0, 9), P(1, 0), P(1, 1), P(1, 2),
         P(1, 7), P(1, 8), P(1, 9), P(2, 0), P(2, 1), P(2, 2), P(2, 7), P(2, 8), P(2, 9),
@@ -191,19 +196,9 @@ void EKFComponent::update()
         0, 0, 0, P(5, 3), P(5, 4), P(5, 5), 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0};
-
-    geometry_msgs::msg::QuaternionStamped quat_msg;
-    quat_msg.header.frame_id = "/map";
-    quat_msg.header.stamp = imutimestamp;
-    quat_msg.quaternion.w = x(6);
-    quat_msg.quaternion.x = x(7);
-    quat_msg.quaternion.y = x(8);
-    quat_msg.quaternion.z = x(9);
-
-
+    
     Posepublisher_->publish(pose_msg);
     Twistpublisher_->publish(twist_msg);
-    Quatpublisher_->publish(quat_msg);
 }
 }  // namespace copto_ekf
 

@@ -45,7 +45,6 @@ extern "C" {
 
 #include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
 #include "geometry_msgs/msg/twist_with_covariance_stamped.hpp"
-#include "geometry_msgs/msg/quaternion_stamped.hpp"
 
 #include "sensor_msgs/msg/imu.hpp"
 
@@ -85,7 +84,6 @@ private:
   rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr IMUsubscription_;
   rclcpp::Publisher<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr Posepublisher_;
   rclcpp::Publisher<geometry_msgs::msg::TwistWithCovarianceStamped>::SharedPtr Twistpublisher_;
-  rclcpp::Publisher<geometry_msgs::msg::QuaternionStamped>::SharedPtr Quatpublisher_;
 };
 }  // namespace copto_ekf
 
