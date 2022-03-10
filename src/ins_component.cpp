@@ -1,10 +1,10 @@
 #include <Eigen/Dense>
-#include <copto_ekf/ekf_component.hpp>
+#include <copto_ins/ins_component.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
 
-namespace copto_ekf
+namespace copto_ins
 {
-EKFComponent::EKFComponent(const rclcpp::NodeOptions & options) : Node("copto_ekf_node", options)
+INSComponent::INSComponent(const rclcpp::NodeOptions & options) : Node("copto_ins_node", options)
 {
   
   A = Eigen::MatrixXd::Zero(10, 10);
@@ -23,7 +23,7 @@ EKFComponent::EKFComponent(const rclcpp::NodeOptions & options) : Node("copto_ek
   cov = Eigen::VectorXd::Zero(36);
 
   IMUsubscription_ = this->create_subscription<sensor_msgs::msg::Imu>(
-    "/imu", 10, std::bind(&EKFComponent::IMUtopic_callback, this, std::placeholders::_1));
+    "/imu", 10, std::bind(&INSComponent::IMUtopic_callback, this, std::placeholders::_1));
 
     Posepublisher_ = this->create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>("/pose", 1);
 
@@ -31,7 +31,7 @@ EKFComponent::EKFComponent(const rclcpp::NodeOptions & options) : Node("copto_ek
 }
 
 
-void EKFComponent::IMUtopic_callback(const sensor_msgs::msg::Imu::SharedPtr msg)
+void INSComponent::IMUtopic_callback(const sensor_msgs::msg::Imu::SharedPtr msg)
 {
   imutimestamp = msg->header.stamp;
   u(0) = msg->linear_acceleration.x;
@@ -44,7 +44,7 @@ void EKFComponent::IMUtopic_callback(const sensor_msgs::msg::Imu::SharedPtr msg)
     update();
 }
 
-bool EKFComponent::init()
+bool INSComponent::init()
 {
   x << 0, 0, 0, 0, 0, 0, 1, 0, 0, 0;
   P << 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -54,7 +54,7 @@ bool EKFComponent::init()
   return initialized = true;
 }
 
-void EKFComponent::modelfunc()
+void INSComponent::modelfunc()
 {
   double xx, xy, xz, vx, vy, vz, q0, q1, q2, q3;
   xx = x(0);
@@ -82,13 +82,13 @@ void EKFComponent::modelfunc()
                (q0 * q0 + q3 * q3 - q1 * q1 - q2 * q2) * u(2) - 9.797) *
                 dt;
 
-  x(6) = (-u(3) * q1 - u(4) * q2 - u(5) * q3) * dt + q0;
-  x(7) = (u(3) * q0 + u(5) * q2 - u(4) * q3) * dt + q1;
-  x(8) = (u(4) * q0 - u(5) * q1 + u(3) * q2) * dt + q2;
-  x(9) = (u(5) * q0 + u(4) * q1 - u(3) * q2) * dt + q3;
+  x(6) = (-u(3) * q1 - u(4) * q2 - u(5) * q3) * 0.5 * dt + q0;
+  x(7) = (u(3) * q0 + u(5) * q2 - u(4) * q3) * 0.5 * dt + q1;
+  x(8) = (u(4) * q0 - u(5) * q1 + u(3) * q2) * 0.5 * dt + q2;
+  x(9) = (u(5) * q0 + u(4) * q1 - u(3) * q2) * 0.5 * dt + q3;
 }
 
-void EKFComponent::jacobi()
+void INSComponent::jacobi()
 {
   A << 1, 0, 0, dt, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, dt, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, dt, 0, 0, 0, 0,
     0, 0, 0, 1, 0, 0, (2 * x(6) * u(0) - 2 * x(9) * u(1) + 2 * x(8) * u(2)) * dt,
@@ -102,9 +102,9 @@ void EKFComponent::jacobi()
     (-2 * x(9) * u(0) + 2 * x(7) * u(1) + 2 * x(6) * u(2)) * dt,
     (2 * x(9) * u(0) + 2 * x(6) * u(1) - 2 * x(7) * u(2)) * dt,
     (-2 * x(6) * u(0) + 2 * x(9) * u(1) + 2 * x(8) * u(2)) * dt,
-    (2 * x(7) * u(0) + 2 * x(8) * u(1) + 2 * x(9) * u(2)) * dt, 0, 0, 0, 0, 0, 0, 1, -dt * u(3),
-    -dt * u(4), -dt * u(5), 0, 0, 0, 0, 0, 0, dt * u(3), 1, dt * u(5), -dt * u(4), 0, 0, 0, 0, 0, 0,
-    dt * u(4), -dt * u(5), 1, dt * u(3), 0, 0, 0, 0, 0, 0, dt * u(5), dt * u(4), -dt * u(3), 1;
+    (2 * x(7) * u(0) + 2 * x(8) * u(1) + 2 * x(9) * u(2)) * dt, 0, 0, 0, 0, 0, 0, 1, -dt * u(3) * 0.5,
+    -dt * u(4) * 0.5, -dt * u(5)* 0.5, 0, 0, 0, 0, 0, 0, dt * u(3), 1, dt * u(5), -dt * u(4), 0, 0, 0, 0, 0, 0,
+    dt * u(4) * 0.5, -dt * u(5) * 0.5, 1, dt * u(3) * 0.5, 0, 0, 0, 0, 0, 0, dt * u(5) * 0.5 , dt * u(4) * 0.5, -dt * u(3) * 0.5, 1;
 
   B << 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     (x(6) * x(6) + x(7) * x(7) - x(8) * x(8) - x(9) * x(9)) * dt,
@@ -147,7 +147,7 @@ void EKFComponent::jacobi()
     0, 0, 0, 0, 1;
 }
 
-void EKFComponent::update()
+void INSComponent::update()
 {
     if (!initialized) {
         std::cout << "NOT Initialized" << std::endl;
@@ -200,6 +200,6 @@ void EKFComponent::update()
     Posepublisher_->publish(pose_msg);
     Twistpublisher_->publish(twist_msg);
 }
-}  // namespace copto_ekf
+}  // namespace copto_ins
 
-RCLCPP_COMPONENTS_REGISTER_NODE(copto_ekf::EKFComponent)
+RCLCPP_COMPONENTS_REGISTER_NODE(copto_ins::INSComponent)

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(copto_ekf)
+project(copto_ins)
 
 # Default to C99
 if(NOT CMAKE_C_STANDARD)
@@ -26,14 +26,14 @@ find_package(Eigen3 REQUIRED)
 
 include_directories(include ${EIGEN3_INCLUDE_DIR})
 
-add_library(ekf_component SHARED src/ekf_component.cpp)
+add_library(ins_component SHARED src/ins_component.cpp)
 
 target_compile_definitions(
-  ekf_component 
-  PRIVATE "COPTO_EKF_EKF_COMPONENT_BUILDING_DLL"
+  ins_component 
+  PRIVATE "COPTO_INS_INS_COMPONENT_BUILDING_DLL"
   )
 
-ament_target_dependencies(ekf_component 
+ament_target_dependencies(ins_component 
   rclcpp 
   rclcpp_components 
   sensor_msgs 
@@ -41,31 +41,31 @@ ament_target_dependencies(ekf_component
   )
 
 rclcpp_components_register_nodes(
-  ekf_component "copto_ekf::EKFComponent"
+  ins_component "copto_ins::INSComponent"
   )
 
-add_executable(copto_ekf_node src/copto_ekf_node.cpp)
+add_executable(copto_ins_node src/copto_ins_node.cpp)
 
-ament_target_dependencies(copto_ekf_node 
+ament_target_dependencies(copto_ins_node 
   rclcpp 
   rclcpp_components
   sensor_msgs 
   geometry_msgs
   )
 
-target_link_libraries(copto_ekf_node ekf_component Eigen3::Eigen)
+target_link_libraries(copto_ins_node ins_component Eigen3::Eigen)
 
-install(TARGETS copto_ekf_node
+install(TARGETS copto_ins_node
   DESTINATION lib/${PROJECT_NAME})
 
-install(TARGETS ekf_component
+install(TARGETS ins_component
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
   )
 
 
-ament_export_libraries(ekf_component)
+ament_export_libraries(ins_component)
 
 ament_export_include_directories(include)
 ament_package()

@@ -1,5 +1,5 @@
-#ifndef COPTO_EKF__EKF_COMPONENT_HPP_
-#define COPTO_EKF__EKF_COMPONENT_HPP_
+#ifndef COPTO_INS__INS_COMPONENT_HPP_
+#define COPTO_INS__INS_COMPONENT_HPP_
 
 #if __cplusplus
 extern "C" {
@@ -9,30 +9,30 @@ extern "C" {
 // demos/composition/include/composition/visibility_control.h at https://github.com/ros2/demos
 #if defined _WIN32 || defined __CYGWIN__
 #ifdef __GNUC__
-#define COPTO_EKF_EKF_COMPONENT_EXPORT __attribute__((dllexport))
-#define COPTO_EKF_EKF_COMPONENT_IMPORT __attribute__((dllimport))
+#define COPTO_INS_INS_COMPONENT_EXPORT __attribute__((dllexport))
+#define COPTO_INS_INS_COMPONENT_IMPORT __attribute__((dllimport))
 #else
-#define COPTO_EKF_EKF_COMPONENT_EXPORT __declspec(dllexport)
-#define COPTO_EKF_EKF_COMPONENT_IMPORT __declspec(dllimport)
+#define COPTO_INS_INS_COMPONENT_EXPORT __declspec(dllexport)
+#define COPTO_INS_INS_COMPONENT_IMPORT __declspec(dllimport)
 #endif
-#ifdef COPTO_EKF_EKF_COMPONENT_BUILDING_DLL
-#define COPTO_EKF_EKF_COMPONENT_PUBLIC COPTO_EKF__EKF_COMPONENT_EXPORT
+#ifdef COPTO_INS_INS_COMPONENT_BUILDING_DLL
+#define COPTO_INS_INS_COMPONENT_PUBLIC COPTO_INS__INS_COMPONENT_EXPORT
 #else
-#define COPTO_EKF_EKF_COMPONENT_PUBLIC COPTO_EKF__EKF_COMPONENT_IMPORT
+#define COPTO_INS_INS_COMPONENT_PUBLIC COPTO_INS__INS_COMPONENT_IMPORT
 #endif
-#define COPTO_EKF__EKF_COMPONENT_PUBLIC_TYPE COPTO_EKF__EKF_COMPONENT_PUBLIC
-#define COPTO_EKF_EKF_COMPONENT_LOCAL
+#define COPTO_INS__INS_COMPONENT_PUBLIC_TYPE COPTO_INS__INS_COMPONENT_PUBLIC
+#define COPTO_INS_INS_COMPONENT_LOCAL
 #else
-#define COPTO_EKF_EKF_COMPONENT_EXPORT __attribute__((visibility("default")))
-#define COPTO_EKF_EKF_COMPONENT_IMPORT
+#define COPTO_INS_INS_COMPONENT_EXPORT __attribute__((visibility("default")))
+#define COPTO_INS_INS_COMPONENT_IMPORT
 #if __GNUC__ >= 4
-#define COPTO_EKF_EKF_COMPONENT_PUBLIC __attribute__((visibility("default")))
-#define COPTO_EKF_EKF_COMPONENT_LOCAL __attribute__((visibility("hidden")))
+#define COPTO_INS_INS_COMPONENT_PUBLIC __attribute__((visibility("default")))
+#define COPTO_INS_INS_COMPONENT_LOCAL __attribute__((visibility("hidden")))
 #else
-#define COPTO_EKF_EKF_COMPONENT_PUBLIC
-#define COPTO_EKF_EKF_COMPONENT_LOCAL
+#define COPTO_INS_INS_COMPONENT_PUBLIC
+#define COPTO_INS_INS_COMPONENT_LOCAL
 #endif
-#define COPTO_EKF_EKF_COMPONENT_PUBLIC_TYPE
+#define COPTO_INS_INS_COMPONENT_PUBLIC_TYPE
 #endif
 
 #if __cplusplus
@@ -48,13 +48,13 @@ extern "C" {
 
 #include "sensor_msgs/msg/imu.hpp"
 
-namespace copto_ekf
+namespace copto_ins
 {
-class EKFComponent : public rclcpp::Node
+class INSComponent : public rclcpp::Node
 {
 public:
-  COPTO_EKF_EKF_COMPONENT_PUBLIC
-  explicit EKFComponent(const rclcpp::NodeOptions & options);
+  COPTO_INS_INS_COMPONENT_PUBLIC
+  explicit INSComponent(const rclcpp::NodeOptions & options);
 
   double dt = 0.01;
   bool initialized = false;
@@ -85,6 +85,6 @@ private:
   rclcpp::Publisher<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr Posepublisher_;
   rclcpp::Publisher<geometry_msgs::msg::TwistWithCovarianceStamped>::SharedPtr Twistpublisher_;
 };
-}  // namespace copto_ekf
+}  // namespace copto_ins
 
-#endif  // COPTO_EKF__EKF_COMPONENT_HPP_
+#endif  // COPTO_INS__INS_COMPONENT_HPP_
